@@ -22,7 +22,7 @@ const entregasController = new EntregasController(entregasService)
 
 //Motorista
 
-const motoristasRepository = new MotoristasController(dataBase)
+const motoristasRepository = new MotoristasRepository(dataBase)
 const motoristasService = new MotoristasService(motoristasRepository)
 const motoristasController = new MotoristasController(motoristasService)
 

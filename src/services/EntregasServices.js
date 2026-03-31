@@ -1,6 +1,7 @@
 export class EntregasService {
-  constructor(repository) {
+  constructor(repository, motoristasRepository) {
     this.repository = repository;
+    this.motoristasRepository = this.motoristasRepository
   }
 
   criar({ descricao, origem, destino }) {
@@ -96,10 +97,25 @@ export class EntregasService {
     return this.repository.atualizar(id, entrega);
   }
 
-  filtrarPorStatus(status) {
-    return this.repository
-      .listarTodos()
-      .filter(e => e.status === status);
+  filtrar({status, motoristaId}) {
+
+    let entregas = this.repository.listarTodos();
+
+    if(motoristaId){
+      const motorista = this.motoristasRepository.buscarPorId(motoristaId)
+      if(!motorista) throw new Error("Motorista não encontrado")
+
+        entregas = entregas.filter(e=>e.motorista?.id === motoristaId)
+    }
+
+    if(status){
+      entregas = entregas.filter(e=>e.status.id === motoristaId)
+    }
+
+    return entregas
+    // return this.repository
+    //   .listarTodos()
+    //   .filter(e => e.status === status);
   }
 
   historico(id) {

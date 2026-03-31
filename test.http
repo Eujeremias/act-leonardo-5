@@ -1,2 +1,10 @@
 ###
-GET https://refactored-palm-tree-6j4xv7wpxp7h5gwr-8080.app.github.dev/usuarios
+POST http://localhost:3000/motoristas
+
+Content-Type: application/json
+
+{
+    "nome": "Jeremias Verissimo",
+    "cpf": "123.456.098-99",
+    "placaVeiculo": "ABD-1A82"
+}

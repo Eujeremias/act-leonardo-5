@@ -1,5 +1,5 @@
 import express from "express"
-import { Database } from "../database/DataBase.js"
+import { Database } from "../database/database.js"
 
 import { EntregasRepository } from "../repositores/EntregasRepository.js";
 import { EntregasService } from "../services/EntregasServices.js";

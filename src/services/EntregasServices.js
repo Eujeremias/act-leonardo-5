@@ -122,4 +122,37 @@ export class EntregasService {
     const entrega = this.buscarPorId(id);
     return entrega.historico;
   }
+
+  atribuirMotorista(entregaId,motoristaId){
+    const entrega = this.buscarPorId(entregaId)
+
+    if(entrega.status !== "CRIADA"){
+      throw new Error("Motorista só pode ser atribuído a entregas com status 'CRIADA'")
+    }
+
+    const motorista = this.motoristasRepository.buscarPorId(motoristaId)
+    if(!motorista){
+      throw new Error("Motorista não encontrado")
+    }
+
+    if(motorista.status === "INATIVO"){
+      throw new Error("Não é permitido atirbuir um motorista com status de 'INATIVO'");;      
+    }
+
+    const motoristaAnterior = entrega.motorista
+
+    entrega.motorista = {
+      id: motorista.id,
+      nome: motorista.nome,
+      placaVeiculo: motorista.placaVeiculo
+    }
+
+    const descricaoHistorico = motoristaAnterior ? `Motorista substituido: ${motoristaAnterior.nome} -> ${motorista.nome}` : `Motorista atribuído: ${motorista.nome}`
+
+    entrega.historico.push({
+      data: new Date().toISOString(),
+      descricao: descricaoHistorico
+    })
+    return this.repository.atualizarEntrega(entregaId, entrega)
+  }
 }

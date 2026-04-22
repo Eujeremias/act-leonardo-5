@@ -1,7 +1,11 @@
 export class EntregasService {
+  /**
+   * @param {import('../repositores/EntregasRepository.js').IEntregasRepository} repository
+   * @param {import('../repositores/MotoristasRepository.js').IMotoristasRepository} motoristasRepository
+   */
   constructor(repository, motoristasRepository) {
     this.repository = repository;
-    this.motoristasRepository = this.motoristasRepository
+    this.motoristasRepository = motoristasRepository;
   }
 
   criar({ descricao, origem, destino }) {
@@ -28,6 +32,7 @@ export class EntregasService {
       origem,
       destino,
       status: "CRIADA",
+      motorista: null,
       historico: [
         {
           data: new Date().toISOString(),
@@ -73,7 +78,7 @@ export class EntregasService {
       descricao: `Status alterado para ${novoStatus}`
     });
 
-    return this.repository.atualizar(id, entrega);
+    return this.repository.atualizarEntrega(id, entrega);
   }
 
   cancelar(id) {
@@ -94,28 +99,25 @@ export class EntregasService {
       descricao: "Entrega cancelada"
     });
 
-    return this.repository.atualizar(id, entrega);
+    return this.repository.atualizarEntrega(id, entrega);
   }
 
-  filtrar({status, motoristaId}) {
-
+  // RF-03 — filtro por status e/ou motorista
+  filtrar({ status, motoristaId }) {
     let entregas = this.repository.listarTodos();
 
-    if(motoristaId){
-      const motorista = this.motoristasRepository.buscarPorId(motoristaId)
-      if(!motorista) throw new Error("Motorista não encontrado")
+    if (motoristaId) {
+      const motorista = this.motoristasRepository.buscarPorId(motoristaId);
+      if (!motorista) throw new Error("Motorista não encontrado");
 
-        entregas = entregas.filter(e=>e.motorista?.id === motoristaId)
+      entregas = entregas.filter(e => e.motorista?.id === motoristaId);
     }
 
-    if(status){
-      entregas = entregas.filter(e=>e.status.id === motoristaId)
+    if (status) {
+      entregas = entregas.filter(e => e.status === status);
     }
 
-    return entregas
-    // return this.repository
-    //   .listarTodos()
-    //   .filter(e => e.status === status);
+    return entregas;
   }
 
   historico(id) {
@@ -123,36 +125,40 @@ export class EntregasService {
     return entrega.historico;
   }
 
-  atribuirMotorista(entregaId,motoristaId){
-    const entrega = this.buscarPorId(entregaId)
+  // RF-02 — Atribuição de motorista
+  atribuirMotorista(entregaId, motoristaId) {
+    const entrega = this.buscarPorId(entregaId);
 
-    if(entrega.status !== "CRIADA"){
-      throw new Error("Motorista só pode ser atribuído a entregas com status 'CRIADA'")
+    if (entrega.status !== "CRIADA") {
+      throw new Error("Motorista só pode ser atribuído a entregas com status CRIADA");
     }
 
-    const motorista = this.motoristasRepository.buscarPorId(motoristaId)
-    if(!motorista){
-      throw new Error("Motorista não encontrado")
+    const motorista = this.motoristasRepository.buscarPorId(motoristaId);
+    if (!motorista) {
+      throw new Error("Motorista não encontrado");
     }
 
-    if(motorista.status === "INATIVO"){
-      throw new Error("Não é permitido atirbuir um motorista com status de 'INATIVO'");;      
+    if (motorista.status === "INATIVO") {
+      throw new Error("Não é permitido atribuir um motorista INATIVO");
     }
 
-    const motoristaAnterior = entrega.motorista
+    const motoristaAnterior = entrega.motorista;
 
     entrega.motorista = {
       id: motorista.id,
       nome: motorista.nome,
       placaVeiculo: motorista.placaVeiculo
-    }
+    };
 
-    const descricaoHistorico = motoristaAnterior ? `Motorista substituido: ${motoristaAnterior.nome} -> ${motorista.nome}` : `Motorista atribuído: ${motorista.nome}`
+    const descricaoHistorico = motoristaAnterior
+      ? `Motorista substituído: ${motoristaAnterior.nome} → ${motorista.nome}`
+      : `Motorista atribuído: ${motorista.nome}`;
 
     entrega.historico.push({
       data: new Date().toISOString(),
       descricao: descricaoHistorico
-    })
-    return this.repository.atualizarEntrega(entregaId, entrega)
+    });
+
+    return this.repository.atualizarEntrega(entregaId, entrega);
   }
 }

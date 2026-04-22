@@ -1,10 +1,41 @@
-###
-POST http://localhost:3000/motoristas
-
+### 1. Criar motorista
+POST http://localhost:8080/api/motoristas
 Content-Type: application/json
 
 {
-    "nome": "Jeremias Verissimo",
-    "cpf": "123.456.098-99",
-    "placaVeiculo": "ABD-1A82"
+  "nome": "Luiz Roberto",
+  "cpf": "103.456.098-99",
+  "placaVeiculo": "FBD-1A82"
+}
+
+### 2. Consultando motorista
+GET http://localhost:8080/api/motoristas
+
+### 3. Consultando motorista por ID
+GET http://localhost:8080/api/motoristas/4
+
+
+### 4. Criar entrega
+POST http://localhost:8080/api/entregas
+Content-Type: application/json
+
+{
+  "descricao": "Caixa de eletronicos",
+  "origem": "Sao Paulo",
+  "destino": "Rio de Janeiro"
+}
+
+###
+GET http://localhost:8080/api/entregas
+
+### 5. Atribuir motorista à entrega
+PATCH http://localhost:8080/api/entregas/2/motorista
+Content-Type: application/json
+
+### 2. Atribuir motorista à entrega (use o id da entrega criada)
+PATCH http://localhost:8080/api/entregas/2/motorista
+Content-Type: application/json
+
+{
+  "motoristaId": 1
 }
